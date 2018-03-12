@@ -8,7 +8,7 @@ def get_data(seq_len):
 			text += line.lower()
 		f.close
 
-	text = text[:1000000]
+	text = text[:100000]
 
 	text = re.sub('\r', '', text)
 	text = re.sub('\n', '', text)

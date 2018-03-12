@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.contrib import rnn
 import time
 
-seq_len = 50
+seq_len = 100
 train_x, train_y = data_utils.get_data(seq_len)
 char_len = train_x.shape[2]
 training_size = train_x.shape[0]
