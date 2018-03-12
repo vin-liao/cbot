@@ -1,4 +1,5 @@
 import numpy as np
+import re
 
 def get_data(seq_len):
 	text = ''
@@ -7,7 +8,9 @@ def get_data(seq_len):
 			text += line.lower()
 		f.close
 
-	text = text[:2000000]
+	text = re.sub('\r', '', text)
+	text = re.sub('\n', '', text)
+	text = re.sub('\t', '', text)
 
 	chars = sorted(list(set(text)))
 	char_indices = dict((c, i) for i, c in enumerate(chars))
