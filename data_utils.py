@@ -12,7 +12,7 @@ def get_data(seq_len):
 	text = re.sub('\n', '', text)
 	text = re.sub('\t', '', text)
 
-	text = text[:1000000]
+	text = text[:400000]
 
 	chars = sorted(list(set(text)))
 	char_indices = dict((c, i) for i, c in enumerate(chars))
@@ -42,5 +42,3 @@ def get_data(seq_len):
 	y = y.astype(np.float32)
 
 	return x, y
-
-get_data(50)
