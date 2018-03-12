@@ -2,6 +2,7 @@ import data_utils
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import rnn
+import time
 
 seq_len = 50
 train_x, train_y = data_utils.get_data(seq_len)
@@ -39,6 +40,8 @@ model_logits = create_model(train_x)
 pred = tf.nn.sigmoid(model_logits)
 
 #define the loss and optimizer
+#sigmoid returns tensors which consist of the loss of each data
+#reduce mean is just averaging all that tensor's value
 loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=train_y, logits=model_logits))
 train_op = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
@@ -51,6 +54,7 @@ with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 
 	for i in range(1, hm_epoch+1):
+		start_time = time.time()
 		epoch_loss = 0
 		start = 0
 		for _ in range(int(training_size/batch_size)):
@@ -66,6 +70,9 @@ with tf.Session() as sess:
 			end += batch_size
 			epoch_loss += c
 
-		print('Epoch: ', i, ' Loss: ', epoch_loss)
+		end_time = time.time()
+		elapsed = end_time - start_time
+		elapsed = str(elapsed) + 's'
+		print('Epoch: ', i, ' Loss: ', epoch_loss, 'Elapsed: ', elapsed)
 
-	#evaluate the model
+	#TODO evaluate model here
