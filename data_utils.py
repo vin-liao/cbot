@@ -19,12 +19,15 @@ def get_data(seq_len):
 	indices_char = dict((i, c) for i, c in enumerate(chars))
 
 	#create sentences and their next character
+	print(len(chars))
+
 	sentences = []
 	next_char = []
 	for i in range(0, len(text)-seq_len):
 		sentences.append(text[i:i+seq_len])
 		next_char.append(text[i+seq_len])
 
+	print('a')
 	#map each character to one hot
 	x = np.zeros((len(sentences), seq_len, len(chars)))
 	y = np.zeros((len(sentences), len(chars)))
@@ -33,7 +36,11 @@ def get_data(seq_len):
 			x[i, j, char_indices[char]] = 1
 		y[i, char_indices[next_char[i]]] = 1
 
+	print('b')
+
 	x = x.astype(np.float32)
 	y = y.astype(np.float32)
 
 	return x, y
+
+get_data(50)

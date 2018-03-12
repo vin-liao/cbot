@@ -13,6 +13,8 @@ rnn_size = 128
 n_classes = char_len
 learning_rate = 0.001
 hm_epoch = 100
+	
+print('c')
 
 x = tf.placeholder('float', [None, seq_len, char_len])
 y = tf.placeholder('float', [None, char_len])
