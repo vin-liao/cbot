@@ -1,8 +1,10 @@
 import numpy as np
 
 def get_data(seq_len):
+	text = ''
 	with open('./data/c_syntax.txt', 'r') as f:
-		text = f.read().lower()
+		for line in f:
+			text += line.lower()
 		f.close
 
 	chars = sorted(list(set(text)))
@@ -28,3 +30,5 @@ def get_data(seq_len):
 	y = y.astype(np.float32)
 
 	return x, y
+
+get_data(50)
