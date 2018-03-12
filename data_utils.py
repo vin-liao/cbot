@@ -8,11 +8,11 @@ def get_data(seq_len):
 			text += line.lower()
 		f.close
 
-	text = text[:750000]
-
 	text = re.sub('\r', '', text)
 	text = re.sub('\n', '', text)
 	text = re.sub('\t', '', text)
+
+	text = text[:1000000]
 
 	chars = sorted(list(set(text)))
 	char_indices = dict((c, i) for i, c in enumerate(chars))
