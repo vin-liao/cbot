@@ -3,9 +3,15 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import rnn
 import time
+import sys
+
+try:
+	hm_char = sys.argv[1] #value from the terminal
+except IndexError:
+	hm_char = 1000000 #default value
 
 seq_len = 50
-train_x, train_y = data_utils.get_data(seq_len)
+train_x, train_y = data_utils.get_data(seq_len, hm_char)
 char_len = train_x.shape[2]
 training_size = train_x.shape[0]
 batch_size = 32
@@ -13,12 +19,10 @@ rnn_size = 128
 n_classes = char_len
 learning_rate = 0.001
 hm_epoch = 100
-	
-print('c')
 
 x = tf.placeholder('float', [None, seq_len, char_len])
 y = tf.placeholder('float', [None, char_len])
-	
+
 def create_model(x):
 	weights = {
 		'out': tf.Variable(tf.random_normal([rnn_size, n_classes]))

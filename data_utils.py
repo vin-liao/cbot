@@ -1,30 +1,28 @@
 import numpy as np
 import re
 
-def get_data(seq_len):
+def get_data(seq_len, hm_char):
 	text = ''
 	with open('./data/linux.txt', 'r') as f:
 		for line in f:
 			text += line.lower()
 		f.close
 
-	# text = text[:1000]
+	#only use hm_char amount of character, becuase not 
+	#everybody has a big memory
+	text = text[:hm_char]
 
 	chars = sorted(list(set(text)))
 	char_indices = dict((c, i) for i, c in enumerate(chars))
 	indices_char = dict((i, c) for i, c in enumerate(chars))
 
 	#create sentences and their next character
-
 	sentences = []
 	next_char = []
 	for i in range(0, len(text)-seq_len, 3):
 		sentences.append(text[i:i+seq_len])
 		next_char.append(text[i+seq_len])
 
-	print(sentences)
-
-	print('a')
 	#map each character to one hot
 	x = np.zeros((len(sentences), seq_len, len(chars)), dtype=np.float32)
 	y = np.zeros((len(sentences), len(chars)), dtype=np.float32)
@@ -33,8 +31,4 @@ def get_data(seq_len):
 			x[i, j, char_indices[char]] = 1
 		y[i, char_indices[next_char[i]]] = 1
 
-	print('b')
-
 	return x, y
-
-get_data(50)
