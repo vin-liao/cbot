@@ -6,8 +6,9 @@ import time
 import sys
 
 try:
-	hm_char = sys.argv[1] #value from the terminal
-except IndexError:
+	hm_char = int(sys.argv[1]) #value from the terminal
+except (IndexError, ValueError) as e:
+	print(e, 'Setting default char value to 1000000')
 	hm_char = 1000000 #default value
 
 seq_len = 50
