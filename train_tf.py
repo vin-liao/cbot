@@ -8,11 +8,14 @@ import sys
 try:
 	hm_char = int(sys.argv[1]) #value from the terminal
 except (IndexError, ValueError) as e:
-	print(e, 'Setting default char value to 1000000')
-	hm_char = 1000000 #default value
+	print(e, 'Setting default char value to 10000')
+	hm_char = 10000
+	pass
+
+print('Using text with total of {} chars'.format(hm_char))
 
 seq_len = 50
-train_x, train_y = data_utils.get_data(seq_len, hm_char)
+train_x, train_y = data_utils.generate_data(seq_len, hm_char)
 char_len = train_x.shape[2]
 training_size = train_x.shape[0]
 batch_size = 32
@@ -43,6 +46,30 @@ def create_model(x):
 	outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
 	return tf.matmul(outputs[-1], weights['out']) + biases['out']
 
+def generate_text(init, length_char):
+	'''
+	mat_eval = data_utils.generate_sample(seq_len, hm_char)
+	yhat = tf.nn.sigmoid(tf.matmul(mat_eval, model_weight) + model_bias)
+
+	probably need to loop this thing over and over again
+	'''
+	#maybe it's better to generate sample randomly instead of only starting
+	#with `n`, and then generate the text with length char
+	#so the result will be length char + seq len
+	#then remove the starting char seq_len amount
+
+
+	mat_eval = data_utils.generate_sample(seq_len, hm_char)
+
+	#yhat is a char generated with simple sigmoid multiplication
+	yhat = tf.nn.sigmoid(tf.matmul(mat_eval, weights['out']) + biases['out'])
+	#then it's turned into 1-D matrix
+	data_utils.char_to_indices(yhat)
+	
+
+
+	return mat_eval, yhat
+
 model_logits = create_model(train_x)
 pred = tf.nn.sigmoid(model_logits)
 
@@ -55,6 +82,7 @@ train_op = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 #calculate acc
 correct_pred = tf.equal(tf.argmax(train_y, 1), tf.argmax(pred, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+saver = tf.train.Saver()
 
 with tf.Session() as sess:
 	#initialize all variable
@@ -62,7 +90,6 @@ with tf.Session() as sess:
 
 	for i in range(1, hm_epoch+1):
 		start_time = time.time()
-		print('Epoch {}/{}'.format(i, hm_epoch+1))
 		epoch_loss = 0
 		start = 0
 		for _ in range(int(training_size/batch_size)):
@@ -70,6 +97,8 @@ with tf.Session() as sess:
 			epoch_x = train_x[start:end]
 			epoch_y = train_y[start:end]
 
+			#you can actually make progress bar here, but eh it's 
+			#not really important
 
 			#train on sess
 			_, c = sess.run([train_op, loss], feed_dict={x: epoch_x, y:epoch_y})
@@ -81,6 +110,13 @@ with tf.Session() as sess:
 		end_time = time.time()
 		elapsed = end_time - start_time
 		elapsed = str(elapsed) + 's'
-		print('Epoch: ', i, ' Loss: ', epoch_loss, 'Elapsed: ', elapsed)
+		print('Epoch: {} | Loss: {:.%4f} | Elapsed: {:.%4f}'.format(i, epoch_loss, elapsed))
+		#TODO print generated text every epoch
+		#maybe put a for loop here
+		#this probably have something to do with sess.run again
 
-	#TODO evaluate model here
+
+	#Save model
+	print('Finished training. Saving model...')
+	save_path = saver.save(sess, './model.ckpt')
+

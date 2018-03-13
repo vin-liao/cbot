@@ -1,7 +1,18 @@
 import numpy as np
 import re
+import tensorflow as tf
 
-def get_data(seq_len, hm_char):
+sentences = []
+next_char = []
+
+def generate_data(seq_len, hm_char=10000):
+	#this usage of global variable is probably a bad programming practice
+	global char_indices
+	global indices_char
+	global char_len
+	global seq_len_utils
+	seq_len_utils = seq_len
+
 	text = ''
 	with open('./data/linux.txt', 'r') as f:
 		for line in f:
@@ -11,14 +22,15 @@ def get_data(seq_len, hm_char):
 	#only use hm_char amount of character, becuase not 
 	#everybody has a big memory
 	text = text[:hm_char]
+	seq_len_utils = seq_len
 
 	chars = sorted(list(set(text)))
+	char_len = len(chars)
+
 	char_indices = dict((c, i) for i, c in enumerate(chars))
 	indices_char = dict((i, c) for i, c in enumerate(chars))
 
 	#create sentences and their next character
-	sentences = []
-	next_char = []
 	for i in range(0, len(text)-seq_len, 3):
 		sentences.append(text[i:i+seq_len])
 		next_char.append(text[i+seq_len])
@@ -32,3 +44,31 @@ def get_data(seq_len, hm_char):
 		y[i, char_indices[next_char[i]]] = 1
 
 	return x, y
+
+def generate_sample(seq_len, hm_char=None):
+	if len(sentences) == 0:
+		generate_data(seq_len, hm_char)
+
+	sample_matrix = np.zeros((seq_len, char_len), dtype=np.float32)
+	#THIS CODE CAN STILL BE BETTER BY THE WAY
+	seed = np.random.randint(len(sentences))	
+	one_sentence = sentences[seed]	
+
+	while one_sentence.startswith('`n`') == False:
+		seed = np.random.randint(len(sentences))	
+		one_sentence = sentences[seed]
+
+	for i, char in enumerate(one_sentence):
+		sample_matrix[i, char_indices[char]] = 1
+
+	return sample_matrix
+
+def char_to_indices(char):
+	mat = np.zeros(char_len, dtype=np.float32)
+	mat[char_indices[char]] = 1
+	return mat
+
+def indices_to_char(mat):
+	idx = np.where(mat==1)
+	return indices_char[idx[0][0]]
+
