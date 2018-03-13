@@ -62,6 +62,7 @@ with tf.Session() as sess:
 
 	for i in range(1, hm_epoch+1):
 		start_time = time.time()
+		print('Epoch {}/{}'.format(i, hm_epoch+1))
 		epoch_loss = 0
 		start = 0
 		for _ in range(int(training_size/batch_size)):
