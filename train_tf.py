@@ -9,7 +9,7 @@ try:
 	hm_char = int(sys.argv[1]) #value from the terminal
 except (IndexError, ValueError) as e:
 	print(e, 'Setting default char value to 10000')
-	hm_char = 10000
+	hm_char = 100
 	pass
 
 print('Using text with total of {} chars'.format(hm_char))
@@ -46,7 +46,12 @@ def create_model(x):
 	outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
 	return tf.matmul(outputs[-1], weights['out']) + biases['out']
 
-def generate_text(init, length_char):
+def generate_text(length_char):
+	#TODO
+	#this probably still needs fixing
+	#TODO
+
+	generated_text = ''
 	'''
 	mat_eval = data_utils.generate_sample(seq_len, hm_char)
 	yhat = tf.nn.sigmoid(tf.matmul(mat_eval, model_weight) + model_bias)
@@ -63,12 +68,17 @@ def generate_text(init, length_char):
 
 	#yhat is a char generated with simple sigmoid multiplication
 	yhat = tf.nn.sigmoid(tf.matmul(mat_eval, weights['out']) + biases['out'])
-	#then it's turned into 1-D matrix
-	data_utils.char_to_indices(yhat)
-	
+	generated_text.append(yhat)
+	for i in range(length_char):
+		#sanity check
+		print('calculating the {} word'.format(i))
+		yhat = tf.nn.sigmoid(tf.matmul(mat_eval, weights['out']) + biases['out'])
+		generated_text.append(yhat)
+		yhat_mat = data_utils.char_to_indices(yhat)
+		mat_eval = np.delete(mat_eval, 0, axis=0)
+		mat_eval = np.append(mat_eval, [yhat_mat], axis=0)
 
-
-	return mat_eval, yhat
+	return yhat
 
 model_logits = create_model(train_x)
 pred = tf.nn.sigmoid(model_logits)
@@ -109,11 +119,14 @@ with tf.Session() as sess:
 
 		end_time = time.time()
 		elapsed = end_time - start_time
+		elapsed = format(elapsed, '.4f')
 		elapsed = str(elapsed) + 's'
-		print('Epoch: {} | Loss: {:.%4f} | Elapsed: {:.%4f}'.format(i, epoch_loss, elapsed))
+		print('Epoch: {} | Loss: {:.4f} | Elapsed: {}'.format(i, epoch_loss, elapsed))
 		#TODO print generated text every epoch
 		#maybe put a for loop here
 		#this probably have something to do with sess.run again
+		# char_op = generate_text(20)
+
 
 
 	#Save model
