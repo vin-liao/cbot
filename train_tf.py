@@ -8,7 +8,7 @@ import sys
 try:
 	hm_char = int(sys.argv[1]) #value from the terminal
 except (IndexError, ValueError) as e:
-	hm_char = 100
+	hm_char = 10000
 	print(e, 'Setting default char value to {}'.format(hm_char))
 	pass
 
@@ -19,7 +19,7 @@ train_x, train_y = data_utils.generate_data(seq_len, hm_char)
 char_len = train_x.shape[2]
 training_size = train_x.shape[0]
 batch_size = 32
-rnn_size = 128
+rnn_size = 64
 n_classes = char_len
 learning_rate = 0.001
 hm_epoch = 100
@@ -85,10 +85,6 @@ def train_rnn():
 			elapsed = format(elapsed, '.4f')
 			elapsed = str(elapsed) + 's'
 			print('Epoch: {} | Loss: {:.4f} | Elapsed: {}'.format(i, epoch_loss, elapsed))
-			#TODO print generated text every epoch
-			#maybe put a for loop here
-			#this probably have something to do with sess.run again
-			# char_op = generate_text(20)
 
 		# Save model
 		print('Finished training. Saving model...')
