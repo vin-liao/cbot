@@ -49,7 +49,7 @@ def generate_sample(seq_len, hm_char=None):
 	if len(sentences) == 0:
 		generate_data(seq_len, hm_char)
 
-	sample_matrix = np.zeros((seq_len, char_len), dtype=np.float32)
+	sample_matrix = np.zeros((1, seq_len, char_len), dtype=np.float32)
 	#THIS CODE CAN STILL BE BETTER BY THE WAY
 	seed = np.random.randint(len(sentences))	
 	one_sentence = sentences[seed]	
@@ -59,7 +59,7 @@ def generate_sample(seq_len, hm_char=None):
 		one_sentence = sentences[seed]
 
 	for i, char in enumerate(one_sentence):
-		sample_matrix[i, char_indices[char]] = 1
+		sample_matrix[0, i, char_indices[char]] = 1
 
 	return sample_matrix
 
@@ -71,4 +71,3 @@ def char_to_indices(char):
 def indices_to_char(mat):
 	idx = np.where(mat==1)
 	return indices_char[idx[0][0]]
-
