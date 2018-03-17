@@ -14,7 +14,7 @@ def generate_data(seq_len, hm_char=10000):
 	seq_len_utils = seq_len
 
 	text = ''
-	with open('./data/linux.txt', 'r') as f:
+	with open('./data/linux_raw.txt', 'r') as f:
 		for line in f:
 			text += line.lower()
 		f.close

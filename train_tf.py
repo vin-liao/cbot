@@ -21,7 +21,8 @@ rnn_size = 256
 n_classes = char_len
 learning_rate = 0.001
 hm_epoch = 100
-hm_gen = 50
+hm_gen = 200
+predict_every_x_epoch = 10
 
 x = tf.placeholder('float', [None, seq_len, char_len])
 y = tf.placeholder('float', [None, char_len])
@@ -41,8 +42,11 @@ def create_model(x):
 	"""
 
 	x = tf.unstack(x, seq_len, 1)
-	#I dont udnerstand the reuse
-	lstm_cell = rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE)
+	
+	#this graph is only needed to be created once. If I want to predict, I
+	#don't want to re-create a new graph, that's why reuse=tf.AUTO_REUSE
+	#if reuse=False, new graph is created everytime this function is called
+	lstm_cell = rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE, activation=tf.nn.relu)
 	outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
 	return tf.matmul(outputs[-1], weights['out']) + biases['out']
 
@@ -107,7 +111,7 @@ def train_rnn():
 			
 			#GENERATE THE TEXT
 			#do this every 5 epoch
-			if i%5 == 0:
+			if i%predict_every_x_epoch == 0:
 				pred_mat = data_utils.generate_sample(seq_len)
 				text = ''
 				yhat_op = generate_yhat(pred_mat)
