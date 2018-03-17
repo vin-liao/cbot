@@ -54,9 +54,9 @@ def generate_sample(seq_len, hm_char=None):
 	seed = np.random.randint(len(sentences))	
 	one_sentence = sentences[seed]	
 
-	while one_sentence.startswith('`n`') == False:
-		seed = np.random.randint(len(sentences))	
-		one_sentence = sentences[seed]
+	# while one_sentence.startswith('`n`') == False:
+	# 	seed = np.random.randint(len(sentences))	
+	# 	one_sentence = sentences[seed]
 
 	for i, char in enumerate(one_sentence):
 		sample_matrix[0, i, char_indices[char]] = 1
