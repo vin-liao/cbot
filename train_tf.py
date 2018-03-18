@@ -14,26 +14,21 @@ except (IndexError, ValueError) as e:
 
 seq_len = 50
 train_x, train_y = data_utils.generate_data(seq_len, hm_char)
-char_len = train_x.shape[2]
+n_classes = train_x.shape[2]
 training_size = train_x.shape[0]
 batch_size = 32
-rnn_size = 256
-n_classes = char_len
+rnn_size = 128
 learning_rate = 0.001
 hm_epoch = 100
 hm_gen = 200
 predict_every_x_epoch = 10
 
-x = tf.placeholder('float', [None, seq_len, char_len])
-y = tf.placeholder('float', [None, char_len])
+x = tf.placeholder('float', [None, seq_len, n_classes])
+y = tf.placeholder('float', [None, n_classes])
 
-weights = {
-	'out': tf.Variable(tf.random_normal([rnn_size, n_classes]), name='rnn_weights')
-}
-
-biases = {
-	'out': tf.Variable(tf.random_normal([n_classes]), name='rnn_biases')
-}
+with tf.variable_scope('rnn'):
+	W = tf.get_variable('W', [rnn_size, n_classes])
+	b = tf.get_variable('b', [n_classes])
 
 def create_model(x):
 	"""
@@ -41,14 +36,18 @@ def create_model(x):
 	wanted rnn input = list of seq len with shape (batch size, num input)
 	"""
 
-	x = tf.unstack(x, seq_len, 1)
-	
 	#this graph is only needed to be created once. If I want to predict, I
 	#don't want to re-create a new graph, that's why reuse=tf.AUTO_REUSE
 	#if reuse=False, new graph is created everytime this function is called
-	lstm_cell = rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE, activation=tf.nn.relu)
-	outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
-	return tf.matmul(outputs[-1], weights['out']) + biases['out']
+	lstm_cell = [rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE, activation=tf.nn.relu) for _ in range(2)]
+	lstm_cell = rnn.MultiRNNCell(lstm_cell)
+	outputs, states = tf.nn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
+	
+	#output shape is (train size, seq len, n classes)
+	#unstack turns it into list with length seq len, each with shape (train size, n classes)
+	outputs = tf.unstack(outputs, seq_len, 1)
+
+	return tf.matmul(outputs[-1], W) + b
 
 def generate_yhat(x_gen):
 	yhat_list = []
@@ -75,7 +74,7 @@ def train_rnn():
 	#define the loss and optimizer
 	#sigmoid returns tensors which consist of the loss of each data
 	#reduce mean is just averaging all that tensor's value
-	loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=train_y, logits=model_logits))
+	loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=train_y, logits=model_logits))
 	train_op = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 	#calculate acc
