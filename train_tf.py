@@ -18,7 +18,7 @@ n_classes = train_x.shape[2]
 training_size = train_x.shape[0]
 batch_size = 32
 rnn_size = 128
-learning_rate = 0.001
+learning_rate = 0.0001
 hm_epoch = 100
 hm_gen = 200
 predict_every_x_epoch = 10
@@ -39,7 +39,6 @@ def create_model(x, dropout=1):
 	#don't want to re-create a new graph, that's why reuse=tf.AUTO_REUSE
 	#if reuse=False, new graph is created everytime this function is called
 	
-	print('USING DROPOUT ', dropout)
 	lstm_cell = [rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE, activation=tf.nn.relu) for _ in range(num_layer)]
 	#ONLY USE DROPOUT IN TRAINING, NOT INFERENCE!
 	for i in range(num_layer):
