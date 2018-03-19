@@ -22,25 +22,30 @@ learning_rate = 0.001
 hm_epoch = 100
 hm_gen = 200
 predict_every_x_epoch = 10
+num_layer = 2
+in_dropout = 0.5
 
 x = tf.placeholder('float', [None, seq_len, n_classes])
 y = tf.placeholder('float', [None, n_classes])
+drop_placeholder = tf.placeholder_with_default(1.0, shape=())
 
 with tf.variable_scope('rnn'):
 	W = tf.get_variable('W', [rnn_size, n_classes])
 	b = tf.get_variable('b', [n_classes])
 
-def create_model(x):
-	"""
-	current input = (batch size, sequence length, num input)
-	wanted rnn input = list of seq len with shape (batch size, num input)
-	"""
+def create_model(x, dropout=1):
 
 	#this graph is only needed to be created once. If I want to predict, I
 	#don't want to re-create a new graph, that's why reuse=tf.AUTO_REUSE
 	#if reuse=False, new graph is created everytime this function is called
-	lstm_cell = [rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE, activation=tf.nn.relu) for _ in range(2)]
+	
+	print('USING DROPOUT ', dropout)
+	lstm_cell = [rnn.BasicLSTMCell(rnn_size, reuse=tf.AUTO_REUSE, activation=tf.nn.relu) for _ in range(num_layer)]
+	#ONLY USE DROPOUT IN TRAINING, NOT INFERENCE!
+	for i in range(num_layer):
+		lstm_cell[i] = rnn.DropoutWrapper(lstm_cell[i], input_keep_prob=dropout)
 	lstm_cell = rnn.MultiRNNCell(lstm_cell)
+
 	outputs, states = tf.nn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
 	
 	#output shape is (train size, seq len, n classes)
@@ -68,7 +73,7 @@ def generate_yhat(x_gen):
 	return yhat_list
 	
 def train_rnn():
-	model_logits = create_model(train_x)
+	model_logits = create_model(train_x, in_dropout)
 	pred = tf.nn.softmax(model_logits)
 
 	#define the loss and optimizer
@@ -96,7 +101,8 @@ def train_rnn():
 				epoch_y = train_y[start:end]
 
 				#train on sess
-				_, c = sess.run([train_op, loss], feed_dict={x: epoch_x, y:epoch_y})
+				# _, c = sess.run([train_op, loss], feed_dict={x: epoch_x, y:epoch_y})
+				_, c = sess.run([train_op, loss], feed_dict={x: epoch_x, y:epoch_y, drop_placeholder:in_dropout})
 
 				start += batch_size
 				end += batch_size
@@ -109,12 +115,11 @@ def train_rnn():
 			print('Epoch: {} | Loss: {:.4f} | Elapsed: {}'.format(i, epoch_loss, elapsed))
 			
 			#GENERATE THE TEXT
-			#do this every 5 epoch
 			if i%predict_every_x_epoch == 0:
 				pred_mat = data_utils.generate_sample(seq_len)
 				text = ''
 				yhat_op = generate_yhat(pred_mat)
-				yhat = sess.run(yhat_op, feed_dict={x: pred_mat})
+				yhat = sess.run(yhat_op, feed_dict={x: pred_mat, drop_placeholder:in_dropout})
 				
 				for j in range(hm_gen):
 					text += data_utils.indices_to_char(yhat[j])
