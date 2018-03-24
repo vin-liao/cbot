@@ -15,13 +15,13 @@ except getopt.GetoptError:
 
 for opt, arg in opts:
 	if opt in ('-s', '--seq'):
-		seq_len = arg
+		seq_len = int(arg)
 	elif opt in ('-c', '--char'):
-		num_char = arg
+		num_char = int(arg)
 	elif opt in ('-e', '--epoch'):
-		num_epoch = arg
+		num_epoch = int(arg)
 	elif opt in ('-b', '--batch'):
-		batch_size = arg
+		batch_size = int(arg)
 	else:
 		sys.exit(2)
 
