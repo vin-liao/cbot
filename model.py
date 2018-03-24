@@ -7,7 +7,7 @@ import sys
 
 class RNN_model():
 	def __init__(self, num_classes, seq_len=50, batch_size=32, rnn_size=128, learning_rate=0.0005,\
-				 num_epoch=100, num_layer=2, num_char=500, num_gen=100, in_dropout=0.8,\
+				 num_epoch=25, num_layer=2, num_char=500, num_gen=100, in_dropout=0.8,\
 				 predict_every_x_epoch=10):
 		self.num_classes = num_classes
 		self.seq_len = seq_len
@@ -90,7 +90,7 @@ class RNN_model():
 				print('Epoch: {} | Loss: {:.4f} | Acc: {:.4f} | Elapsed: {}'.format(i, epoch_loss, epoch_acc, elapsed))
 				
 				#GENERATE THE TEXT
-				if i%2 == 0:
+				if i%self.predict_every_x_epoch == 0:
 					pred_mat = data_utils.generate_sample(self.seq_len)
 					text = ''
 					yhat_op = self.generate_prediction(pred_mat)
