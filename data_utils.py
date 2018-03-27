@@ -17,12 +17,7 @@ def generate_data(seq_len, hm_char=10000):
 			text += line.lower()
 		f.close
 
-<<<<<<< HEAD
 	#only use hm_char amount of character
-=======
-	#only use hm_char amount of character, becuase not 
-	#everybody has a big memory
->>>>>>> b63ac85f64a6472acfa658642666b8bebb069686
 	if hm_char == -1:
 		pass
 	else:
