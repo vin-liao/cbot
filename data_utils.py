@@ -10,8 +10,6 @@ def generate_data(seq_len, hm_char=10000):
 	global char_indices
 	global indices_char
 	global char_len
-	global seq_len_utils
-	seq_len_utils = seq_len
 
 	text = ''
 	with open('./data/linux.txt', 'r') as f:
@@ -19,10 +17,11 @@ def generate_data(seq_len, hm_char=10000):
 			text += line.lower()
 		f.close
 
-	#only use hm_char amount of character, becuase not 
-	#everybody has a big memory
-	text = text[:hm_char]
-	seq_len_utils = seq_len
+	#only use hm_char amount of character
+	if hm_char == -1:
+		pass
+	else:
+		text = text[:hm_char]
 
 	chars = sorted(list(set(text)))
 	char_len = len(chars)
@@ -69,5 +68,5 @@ def char_to_indices(char):
 	return mat
 
 def indices_to_char(mat):
-	idx = np.where(mat==1)
+	idx = np.where(mat[0]==1)
 	return indices_char[idx[0][0]]
