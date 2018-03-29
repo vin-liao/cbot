@@ -1,7 +1,7 @@
 import data_utils
 import numpy as np
 import tensorflow as tf
-from tensorflow.contrib import rnn
+from tensorflow.contrib import rnn_size
 import time
 import sys
 
