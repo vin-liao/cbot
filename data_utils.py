@@ -117,7 +117,7 @@ def generate_sample(seq_len, hm_char=None, zero_vectors=False):
 	if zero_vectors:
 		if len(sentences) == 0:
 			generate_data(seq_len, hm_char)
-			return np.zeros((1, seq_len, char_len), dtype=np.float32)
+		return np.zeros((1, seq_len, char_len), dtype=np.float32)
 
 	else:
 		if len(sentences) == 0:
@@ -126,11 +126,7 @@ def generate_sample(seq_len, hm_char=None, zero_vectors=False):
 		sample_matrix = np.zeros((1, seq_len, char_len), dtype=np.float32)
 		#THIS CODE CAN STILL BE BETTER BY THE WAY
 		seed = np.random.randint(len(sentences))	
-		one_sentence = sentences[seed]	
-
-		# while one_sentence.endswith('\n') == False:
-		# 	seed = np.random.randint(len(sentences))	
-		# 	one_sentence = sentences[seed]
+		one_sentence = sentences[seed]
 
 		for i, char in enumerate(one_sentence):
 			sample_matrix[0, i, char_indices[char]] = 1
