@@ -100,5 +100,5 @@ ENV/
 # mypy
 .mypy_cache/
 
-#ckpt folder
-ckpt/
+#generate folder
+generate/
