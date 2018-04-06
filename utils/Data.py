@@ -34,7 +34,7 @@ class Data():
 		self.hm_char = hm_char
 		self.skip_char = skip_char
 
-	def generate_data(self, save_sentence=False):
+	def generate_data(self, save_sentence=0):
 		with open('./data/linux.txt', 'r') as f:
 			for line in f:
 				self.text += line.lower()
@@ -63,11 +63,14 @@ class Data():
 		self.y = np.zeros((len(self.sentences), len(self.chars)), dtype=np.float32)
 		for i, sentence in enumerate(self.sentences):
 			for j, char in enumerate(sentence):
-				x[i, j, self.char_indices[char]] = 1
-			y[i, self.char_indices[next_char[i]]] = 1
+				self.x[i, j, self.char_indices[char]] = 1
+			self.y[i, self.char_indices[next_char[i]]] = 1
 
-		if save_sentence:
-			pass
+		if save_sentence != 0:
+			write_sentence = np.random.choice(sentence, save_sentence, replace=False)
+			with open('sentences.txt', 'w') as r:
+				for one_sentence in write_sentence:
+					r.write(write_sentence+'\n')
 
 		return self.x, self.y
 
