@@ -64,7 +64,7 @@ class Data():
 		for i, sentence in enumerate(self.sentences):
 			for j, char in enumerate(sentence):
 				self.x[i, j, self.char_indices[char]] = 1
-			self.y[i, self.char_indices[next_char[i]]] = 1
+			self.y[i, self.char_indices[self.next_char[i]]] = 1
 
 		if save_sentence != 0:
 			write_sentence = np.random.choice(sentence, save_sentence, replace=False)
