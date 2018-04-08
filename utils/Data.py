@@ -10,9 +10,6 @@ class Data():
 		hm_char: How many char is taken from the text. the default is 10k, so only
 				 the first 10k characters is used
 
-		return_generator: If True, returns a generator
-						  If false, returns (train, target)
-
 		skip_char: How many characters to skip in the training data. Defualt is 1, 
 				   which means it doesn't skip.
 
@@ -78,11 +75,41 @@ class Data():
 			sample_matrix = np.zeros((1, self.seq_len, self.char_len), dtype=np.float32)
 			seed = np.random.randint(len(self.sentences))	
 			one_sentence = self.sentences[seed]
+			print('Starting char:')
+			print(one_sentence)
 
 			for i, char in enumerate(one_sentence):
 				sample_matrix[0, i, self.char_indices[char]] = 1
 
 			return sample_matrix
+
+	def predict(self, model, num_classes, num_gen=100, use_empty_vector=False):
+		if use_empty_vector:
+			eval_matrix = self.generate_sample(zero_vectors=True)
+		else:
+			eval_matrix = self.generate_sample()
+
+		yhat_matrix = np.zeros((1, num_classes))
+		text = ''
+
+		for i in range(num_gen):
+			if use_empty_vector and i == 0:
+				yhat_matrix[0, np.random.choice(eval_matrix.shape[2])] = 1	
+
+			else:
+				yhat_matrix_raw = model.predict(eval_matrix)
+				yhat_matrix[0, np.argmax(yhat_matrix_raw)] = 1
+
+				yhat_char = self.indices_to_char(yhat_matrix)
+				text += yhat_char
+
+				eval_matrix = np.delete(eval_matrix, 0, axis=1)
+				eval_matrix = np.append(eval_matrix, [yhat_matrix], axis=1)
+
+				yhat_matrix[0, np.argmax(yhat_matrix_raw)] = 0
+		
+		print('Prediction:')	
+		print(text)
 
 	def char_to_indices(self, char):
 		mat = np.zeros(self.char_len, dtype=np.float32)
