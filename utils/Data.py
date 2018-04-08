@@ -37,7 +37,6 @@ class Data():
 	def generate_data(self, save_sentence=0):
 		with open('./data/linux.txt', 'r') as f:
 			self.text = f.read(self.hm_char)
-			print(self.text)
 			f.close()
 
 		self.chars = sorted(list(set(self.text)))
@@ -64,7 +63,10 @@ class Data():
 			write_sentence = np.random.choice(self.sentences, save_sentence, replace=False)
 			with open('sentences.txt', 'w') as r:
 				for one_sentence in write_sentence:
-					r.write(one_sentence+'\n')
+					print(len(one_sentence))
+					one_sentence = re.sub(r'\n', '`n`', one_sentence)
+					one_sentence = re.sub(r'\t', '`t`', one_sentence)
+					r.write(one_sentence)
 				r.close()
 
 		return self.x, self.y
