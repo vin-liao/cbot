@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import pickle
 
 class Data():
 	def __init__(self, seq_len, hm_char=10000, skip_char=1):
@@ -59,15 +60,8 @@ class Data():
 				self.x[i, j, self.char_indices[char]] = 1
 			self.y[i, self.char_indices[self.next_char[i]]] = 1
 
-		if save_sentence != 0:
-			write_sentence = np.random.choice(self.sentences, save_sentence, replace=False)
-			with open('sentences.txt', 'w') as r:
-				for one_sentence in write_sentence:
-					print(len(one_sentence))
-					one_sentence = re.sub(r'\n', '`n`', one_sentence)
-					one_sentence = re.sub(r'\t', '`t`', one_sentence)
-					r.write(one_sentence)
-				r.close()
+		if save_sentence > 0:
+			self.save_things(save_sentence)
 
 		return self.x, self.y
 
@@ -98,3 +92,19 @@ class Data():
 	def indices_to_char(self, mat):
 		idx = np.where(mat[0]==1)
 		return self.indices_char[idx[0][0]]
+
+	def save_things(self, save_sentence):
+		with open('indices_char.pickle', 'wb') as f1:
+			pickle.dump(self.indices_char, f1)
+
+		with open('char_indices.pickle', 'wb') as f2:
+			pickle.dump(self.char_indices, f2)
+		
+		#sentences
+		write_sentence = np.random.choice(self.sentences, save_sentence, replace=False)
+		with open('sentences.txt', 'w') as r:
+			for one_sentence in write_sentence:
+				one_sentence = re.sub(r'\n', '`n`', one_sentence)
+				one_sentence = re.sub(r'\t', '`t`', one_sentence)
+				r.write(one_sentence)
+			r.close()
