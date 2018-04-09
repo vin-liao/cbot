@@ -54,12 +54,8 @@ class Data():
 
 		self.training_size = len(self.sentences)
 
-	def generate_data(self, save_sentence=0):
+	def generate_data(self):
 		x, y = self.sentences_to_matrix(len(self.sentences), self.sentences, self.next_char)
-
-		if save_sentence > 0:
-			self.save_things(save_sentence)
-
 		return x, y
 
 	def generate_sample(self, zero_vectors=False):
@@ -157,7 +153,7 @@ class Data():
 			for one_sentence in write_sentence:
 				one_sentence = re.sub(r'\n', '`n`', one_sentence)
 				one_sentence = re.sub(r'\t', '`t`', one_sentence)
-				r.write(one_sentence)
+				r.write(one_sentence+'\n')
 			r.close()
 
 	def get_num_classes(self):
