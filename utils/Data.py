@@ -3,7 +3,7 @@ import re
 import pickle
 
 class Data():
-	def __init__(self, seq_len, hm_char=10000, skip_char=1):
+	def __init__(self, seq_len, hm_char=10000, skip_char=1, which_text='c'):
 		'''
 		seq_len: Sequence length.
 		
@@ -32,13 +32,32 @@ class Data():
 		self.hm_char = hm_char
 		self.skip_char = skip_char
 
-		with open('./data/linux.txt', 'r') as f:
-			if hm_char == -1:
-				#use all data, this is for generator
-				self.text = f.read()
-			else:
-				self.text = f.read(self.hm_char)
-			f.close()
+		if which_text == 'c':
+			with open('./data/linux.txt', 'r') as f:
+				if hm_char == -1:
+					#use all data, this is for generator
+					self.text = f.read()
+				else:
+					self.text = f.read(self.hm_char)
+				f.close()
+
+		elif which_text == 'bible':
+			with open('./data/bible.txt', 'r') as f:
+				if hm_char == -1:
+					#use all data, this is for generator
+					self.text = f.read()
+				else:
+					self.text = f.read(self.hm_char)
+				f.close()
+
+		elif which_text == 'wnp':
+			with open('./data/war_and_peace.txt', 'r') as f:
+				if hm_char == -1:
+					#use all data, this is for generator
+					self.text = f.read()
+				else:
+					self.text = f.read(self.hm_char)
+				f.close()
 
 		self.chars = sorted(list(set(self.text)))
 		self.char_len = len(self.chars)
@@ -51,6 +70,7 @@ class Data():
 		for i in range(0, len(self.text)-self.seq_len, self.skip_char):
 			self.sentences.append(self.text[i:i+self.seq_len])
 			self.next_char.append(self.text[i+self.seq_len])
+			print(self.text[i:i+self.seq_len], '->', self.text[i+self.seq_len])
 
 		self.training_size = len(self.sentences)
 
