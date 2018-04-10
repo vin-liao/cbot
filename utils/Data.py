@@ -70,7 +70,6 @@ class Data():
 		for i in range(0, len(self.text)-self.seq_len, self.skip_char):
 			self.sentences.append(self.text[i:i+self.seq_len])
 			self.next_char.append(self.text[i+self.seq_len])
-			print(self.text[i:i+self.seq_len], '->', self.text[i+self.seq_len])
 
 		self.training_size = len(self.sentences)
 
