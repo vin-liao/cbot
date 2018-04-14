@@ -96,7 +96,7 @@ class Data():
 
 			return sample_matrix
 
-	def predict(self, model, num_gen=100, use_empty_vector=False):
+	def predict(self, model, num_gen=100, use_empty_vector=False, visualize=False):
 		if use_empty_vector:
 			eval_matrix = self.generate_sample(zero_vectors=True)
 		else:
@@ -118,7 +118,13 @@ class Data():
 
 				eval_matrix = np.delete(eval_matrix, 0, axis=1)
 				eval_matrix = np.append(eval_matrix, [[yhat_matrix]], axis=1)
+				if visualize:
+					sent = ''
+					for mat in eval_matrix[0]:
+						char = self.indices_to_char(mat)
+						sent += char
 
+					print(sent)
 				yhat_matrix[np.argmax(yhat_matrix_raw)] = 0
 		
 		print('Prediction:')	
@@ -132,7 +138,7 @@ class Data():
 				seed = np.random.choice(len(self.sentences))
 				sentence_list.append(self.sentences[seed])
 				target_list.append(self.next_char[seed])
-
+				
 			yield self.sentences_to_matrix(batch_size, sentence_list, target_list)
 
 	def sentences_to_matrix(self, training_size, sentences, next_char):
