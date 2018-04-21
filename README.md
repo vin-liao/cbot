@@ -1,2 +1,2 @@
-# cbot
-AI that writes C codes.
+# char-rnn
+An implementation of char-rnn
