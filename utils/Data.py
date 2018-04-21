@@ -96,7 +96,8 @@ class Data():
 
 			return sample_matrix
 
-	def predict(self, model, num_gen=100, use_empty_vector=False, visualize=False):
+	def predict(self, model, num_gen=100, use_empty_vector=False, visualize=False,\
+				greedy=False):
 		if use_empty_vector:
 			eval_matrix = self.generate_sample(zero_vectors=True)
 		else:
@@ -107,17 +108,42 @@ class Data():
 
 		for i in range(num_gen):
 			if use_empty_vector and i == 0:
+				#randomly choose 1 character as a starting point
 				yhat_matrix[np.random.choice(eval_matrix.shape[2])] = 1	
 
 			else:
-				yhat_matrix_raw = model.predict(eval_matrix)
-				yhat_matrix[np.argmax(yhat_matrix_raw)] = 1
+				yhat_matrix_raw = model.predict(eval_matrix).astype(np.float64)
+				yhat_matrix_raw = yhat_matrix_raw[0]
+				if greedy:
+					yhat_matrix[np.argmax(yhat_matrix_raw)] = 1
+
+				else:
+					#temperature sampling
+					try:
+						probas = np.random.multinomial(1, yhat_matrix_raw, 1)
+					except ValueError:
+						#if the sum is equal 1, get the difference and subtract
+						#the goal is to have the number sum to < 1
+						total_diff = np.subtract(1, np.sum(yhat_matrix_raw))
+						total_diff += total_diff*100
+						each_diff = np.divide(total_diff, num_classes)
+						yhat_matrix_raw = np.add(yhat_matrix_raw, each_diff)
+						try:
+							probas = np.random.multinomial(1, yhat_matrix_raw, 1)
+						except ValueError:
+							#sometimes the sum is still > 1, get the difference
+							#and subtract to the first element
+							total_diff = np.subtract(1, np.sum(yhat_matrix_raw))
+							yhat_matrix_raw[0] = np.add(yhat_matrix_raw[0], total_diff)
+					yhat_matrix = probas[0]
 
 				yhat_char = self.indices_to_char(yhat_matrix)
 				text += yhat_char
 
 				eval_matrix = np.delete(eval_matrix, 0, axis=1)
 				eval_matrix = np.append(eval_matrix, [[yhat_matrix]], axis=1)
+				yhat_matrix[np.argmax(yhat_matrix_raw)] = 0
+
 				if visualize:
 					sent = ''
 					for mat in eval_matrix[0]:
@@ -125,7 +151,6 @@ class Data():
 						sent += char
 
 					print(sent)
-				yhat_matrix[np.argmax(yhat_matrix_raw)] = 0
 		
 		print('Prediction:')	
 		print(text)
